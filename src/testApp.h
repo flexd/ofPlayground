@@ -4,32 +4,54 @@
 
 #include "ofMain.h"
 #include <list>
+struct tVector2 {
+	double x, y;
+};
+struct tForce {
+	float force;
+	float angle;
+};
 class Object {
 	public:
-		Object(int x, int y, double x_velocity, double y_velocity) {
-			_x = x;
-			_y = y;
-			_x_velocity = x_velocity;
-			_y_velocity = y_velocity;
-		}
-		int x() { return (int)_x; }
-		int y() { return (int)_y; }
-		int setY(int y) { _y = (int)y; }
-		int reverse_x_vel() { _x_velocity = _x_velocity * -1; }
-		int reverse_y_vel() { _y_velocity = _y_velocity * -1; }
-		void move(double time_delta) {
-			_x += time_delta * _x_velocity * 2.25;
-			_y += time_delta * _y_velocity * 2.25;
-		}
-		double _x, _y;
-		double _x_velocity;
-		double _y_velocity;
+	Object(int x, int y, double xv, double yv, float _mass) {
+		pos.x = x;
+		pos.y = y;
+		vel.x = xv;
+		vel.y = yv;
+		mass = _mass;
+		force = 0; // set the standard force to 0, this isnt moving yet.
+		fangle = 0; // irrelevant at this point
+	}
+	int reverse_xv() { vel.x = vel.x * -1; }
+	int reverse_yv() { vel.y = vel.y * -1; }
+	int x() { return floor(pos.x); }
+	int y() { return floor(pos.y); }
+	void info(ofTrueTypeFont& font){
+		char infoString[255];
+		sprintf(infoString,"x: %i, y: %i, x speed: %f y speed: %f force: %f fangle: %f in world: %i", x(), y(), vel.x, vel.y, force, fangle,binWorld);
+		font.drawString(infoString, pos.x+40, pos.y);
+	}
+	tVector2 pos;
+	tVector2 vel;
+	bool binWorld;
+	float mass;
+	float force;
+	float fangle;
 };
 class testApp : public ofBaseApp{
-	float newtime, oldtime;
-	list <Object*> objects;
-	ofTrueTypeFont arial;
+	float newtime, oldtime; // keep track of elapsed time
+	list <Object*> objects; // keep track of objects
+	ofTrueTypeFont arial; // one common font to rule them all.
 	
+	
+	struct tBoundingBox {
+		tVector2 max;
+		tVector2 min;
+	};
+	tBoundingBox boxArray[1];
+	// bounding box for collisions
+	bool bAllGood;
+	double t;
 	public:
 		double elapsed_time();
 		void setup();
